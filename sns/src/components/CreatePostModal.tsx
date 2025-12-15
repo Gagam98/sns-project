@@ -16,6 +16,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     const [imageUrl, setImageUrl] = useState("");
     const [caption, setCaption] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const { user } = useAuth();
 
     if (!isOpen) return null;
@@ -32,19 +33,27 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             alert("User ID not found. Please log in again.");
             return;
         }
+
         setIsLoading(true);
         try {
+            const formData = new FormData();
+            formData.append('content', caption); // Note: backend expects 'content', not 'caption'
+
+            if (selectedFile) {
+                formData.append('images', selectedFile);
+            }
+
+            // Get JWT token from localStorage (assuming it's stored during login)
+            const token = localStorage.getItem('sns_token');
+
             const res = await fetch('http://localhost:3001/posts', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: user.id,
-                    username: user.username,
-                    userAvatar: user.avatarUrl,
-                    imageUrls: [imageUrl],
-                    caption,
-                }),
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
             });
+
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.message || 'Failed to create post');
@@ -54,8 +63,8 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             setStep("select");
             setImageUrl("");
             setCaption("");
+            setSelectedFile(null);
             onClose();
-            // Force reload or better way to update feed? For now window reload to be simple as requested in prompt "show in profile"
             window.location.reload();
         } catch (error: any) {
             alert(error.message || "Failed to create post");
@@ -64,31 +73,14 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
         }
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Upload file immediately (or ideally, preview then upload on submit, but upload first is easier to get URL)
-            // Let's preview with blob first, but store file for upload later? 
-            // Better: Upload now to get URL, simplifies submit logic.
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const res = await fetch('http://localhost:3001/uploads', {
-                    method: 'POST',
-                    body: formData,
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setImageUrl(data.url);
-                    setStep("details");
-                } else {
-                    alert("Upload failed");
-                }
-            } catch (error) {
-                console.error("Upload error", error);
-                alert("Upload error");
-            }
+            setSelectedFile(file);
+            // Create preview URL
+            const blobUrl = URL.createObjectURL(file);
+            setImageUrl(blobUrl);
+            setStep("details");
         }
     };
 

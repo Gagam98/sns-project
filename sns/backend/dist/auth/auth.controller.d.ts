@@ -1,8 +1,10 @@
 import { AuthService } from './auth.service';
-import { LoginDto, SignupDto } from './dto/auth.dto';
 export declare class AuthController {
-    private readonly authService;
+    private authService;
     constructor(authService: AuthService);
-    login(loginDto: LoginDto): Promise<any>;
-    signup(signupDto: SignupDto): Promise<any>;
+    login(req: any): Promise<{
+        access_token: string;
+    }>;
+    signup(req: any): Promise<import("../users/schemas/user.schema").User>;
+    getProfile(req: any): any;
 }

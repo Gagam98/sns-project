@@ -14,52 +14,44 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const posts_service_1 = require("./posts.service");
-const create_post_dto_1 = require("./dto/create-post.dto");
-const update_post_dto_1 = require("./dto/update-post.dto");
+const passport_1 = require("@nestjs/passport");
 let PostsController = class PostsController {
     postsService;
     constructor(postsService) {
         this.postsService = postsService;
     }
-    async create(createPostDto) {
-        try {
-            return await this.postsService.create(createPostDto);
-        }
-        catch (error) {
-            console.error("Create Post Error:", error);
-            throw new common_1.BadRequestException(error.message);
-        }
+    create(createPostDto, files, req) {
+        return this.postsService.create(createPostDto, files, req.user.userId);
     }
     findAll() {
         return this.postsService.findAll();
     }
     findByUser(username) {
-        return this.postsService.findByUser(username);
+        return this.postsService.findByAuthorUsername(username);
     }
     findOne(id) {
-        return this.postsService.findOne(id);
+        return this.postsService.findById(id);
     }
-    update(id, updatePostDto) {
-        return this.postsService.update(id, updatePostDto);
+    toggleLike(id, req) {
+        return this.postsService.toggleLike(id, req.user.userId);
     }
-    remove(id) {
-        return this.postsService.remove(id);
-    }
-    like(id, userId) {
-        return this.postsService.like(id, userId);
-    }
-    comment(id, commentData) {
-        return this.postsService.comment(id, commentData);
+    addComment(id, body) {
+        return this.postsService.addComment(id, body.text, body.userId, body.username);
     }
 };
 exports.PostsController = PostsController;
 __decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Post)(),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('images', 10)),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFiles)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_post_dto_1.CreatePostDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:paramtypes", [Object, Array, Object]),
+    __metadata("design:returntype", void 0)
 ], PostsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -82,28 +74,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_post_dto_1.UpdatePostDto]),
-    __metadata("design:returntype", void 0)
-], PostsController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], PostsController.prototype, "remove", null);
-__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Patch)(':id/like'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('userId')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
-], PostsController.prototype, "like", null);
+], PostsController.prototype, "toggleLike", null);
 __decorate([
     (0, common_1.Post)(':id/comments'),
     __param(0, (0, common_1.Param)('id')),
@@ -111,7 +89,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
-], PostsController.prototype, "comment", null);
+], PostsController.prototype, "addComment", null);
 exports.PostsController = PostsController = __decorate([
     (0, common_1.Controller)('posts'),
     __metadata("design:paramtypes", [posts_service_1.PostsService])

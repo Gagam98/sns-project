@@ -46,19 +46,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const res = await fetch('http://localhost:3001/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ email: username, password }),
             });
             if (!res.ok) {
                 const error = await res.json();
                 throw new Error(error.message || 'Login failed');
             }
-            const user = await res.json();
-            // Map _id to id if necessary, or ensure backend sends id.
-            // For now, let's assume we can use the user as is, but might need to normalizeid.
-            if (user._id && !user.id) user.id = user._id;
+            const data = await res.json();
 
-            setUser(user);
-            localStorage.setItem("sns_current_user_id", user.id);
+            // Backend returns { access_token: "..." }
+            if (data.access_token) {
+                localStorage.setItem("sns_token", data.access_token);
+            }
+
+            // Fetch user details with token
+            const userRes = await fetch('http://localhost:3001/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${data.access_token}`
+                }
+            });
+
+            if (userRes.ok) {
+                const user = await userRes.json();
+                if (user._id && !user.id) user.id = user._id;
+                setUser(user);
+                localStorage.setItem("sns_current_user_id", user.id);
+            } else {
+                throw new Error('Failed to fetch user data');
+            }
         } catch (error: any) {
             throw new Error(error.message || 'Login failed');
         }

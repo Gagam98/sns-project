@@ -93,7 +93,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="w-full md:w-[60%] bg-black flex items-center justify-center relative bg-gray-100">
                     <div className="relative w-full h-full min-h-[400px]">
                         <Image
-                            src={post.imageUrls[0]}
+                            src={(post as any).images?.[0] || post.imageUrls?.[0] || "/winter.jpg"}
                             alt="Post"
                             fill
                             className="object-contain"
@@ -107,9 +107,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
                         <div className="flex items-center gap-3">
                             <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100">
-                                <Image src={post.userAvatar || "/default-avatar.png"} fill alt={post.username} />
+                                <Image src={(post as any).author?.avatarUrl || post.userAvatar || "/default-avatar.png"} fill alt={(post as any).author?.username || post.username || "User"} />
                             </div>
-                            <Link href={`/profile/${post.username}`} className="font-semibold text-sm hover:underline">{post.username}</Link>
+                            <Link href={`/profile/${(post as any).author?.username || post.username}`} className="font-semibold text-sm hover:underline">{(post as any).author?.username || post.username}</Link>
                         </div>
                         <MoreHorizontal className="w-5 h-5 cursor-pointer" />
                     </div>
@@ -119,18 +119,18 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         {/* Creator Caption */}
                         <div className="flex gap-3">
                             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                                <Image src={post.userAvatar || "/default-avatar.png"} fill alt={post.username} />
+                                <Image src={(post as any).author?.avatarUrl || post.userAvatar || "/default-avatar.png"} fill alt={(post as any).author?.username || post.username || "User"} />
                             </div>
                             <div>
-                                <span className="font-semibold text-sm mr-2">{post.username}</span>
-                                <span className="text-sm whitespace-pre-wrap">{post.caption}</span>
+                                <span className="font-semibold text-sm mr-2">{(post as any).author?.username || post.username}</span>
+                                <span className="text-sm whitespace-pre-wrap">{(post as any).content || post.caption}</span>
                                 <div className="text-xs text-gray-500 mt-1">{new Date(post.createdAt).toLocaleDateString()}</div>
                             </div>
                         </div>
 
                         {/* Comments List */}
-                        {post.comments.map((comment) => (
-                            <div key={comment.id} className="flex gap-3">
+                        {(post.comments || []).map((comment, index) => (
+                            <div key={comment._id || index} className="flex gap-3">
                                 <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                                     <Image src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${comment.username}`} fill alt={comment.username} />
                                 </div>
@@ -158,7 +158,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
 
                     {/* Add Comment */}
-                    <form onSubmit={handleComment} className="border-t border-gray-200 p-3 flex items-center gap-2">
+                    <form onSubmit={handleSubmit} className="border-t border-gray-200 p-3 flex items-center gap-2">
                         <input
                             type="text"
                             placeholder={user ? "댓글 달기..." : "로그인 후 댓글을 남겨보세요..."}

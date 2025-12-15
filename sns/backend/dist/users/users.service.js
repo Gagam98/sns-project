@@ -22,18 +22,18 @@ let UsersService = class UsersService {
     constructor(userModel) {
         this.userModel = userModel;
     }
-    async create(createUserDto) {
-        const createdUser = new this.userModel(createUserDto);
+    async create(createData) {
+        const createdUser = new this.userModel(createData);
         return createdUser.save();
     }
-    async findOne(username) {
-        return this.userModel.findOne({ username }).exec();
+    async findByEmail(email) {
+        return this.userModel.findOne({ email }).exec();
     }
     async findById(id) {
         return this.userModel.findById(id).exec();
     }
-    async update(username, updateUserDto) {
-        return this.userModel.findOneAndUpdate({ username }, updateUserDto, { new: true }).exec();
+    async findByUsername(username) {
+        return this.userModel.findOne({ username }).exec();
     }
 };
 exports.UsersService = UsersService;

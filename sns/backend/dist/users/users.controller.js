@@ -20,32 +20,14 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
-    async findOne(username) {
-        const user = await this.usersService.findOne(username);
-        if (!user) {
-            throw new common_1.NotFoundException('User not found');
-        }
-        return user;
-    }
     async findById(id) {
-        const user = await this.usersService.findById(id);
-        if (!user) {
-            throw new common_1.NotFoundException('User not found');
-        }
-        return user;
+        return this.usersService.findById(id);
     }
-    async update(username, updateUserDto) {
-        return this.usersService.update(username, updateUserDto);
+    async findByUsername(username) {
+        return this.usersService.findByUsername(username);
     }
 };
 exports.UsersController = UsersController;
-__decorate([
-    (0, common_1.Get)(':username'),
-    __param(0, (0, common_1.Param)('username')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Get)('id/:id'),
     __param(0, (0, common_1.Param)('id')),
@@ -54,13 +36,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findById", null);
 __decorate([
-    (0, common_1.Patch)(':username'),
+    (0, common_1.Get)(':username'),
     __param(0, (0, common_1.Param)('username')),
-    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], UsersController.prototype, "update", null);
+], UsersController.prototype, "findByUsername", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

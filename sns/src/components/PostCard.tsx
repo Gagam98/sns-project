@@ -14,11 +14,16 @@ interface PostCardProps {
 
 export function PostCard({ post, priority = false }: PostCardProps) {
     const { user } = useAuth();
-    const [isLiked, setIsLiked] = useState(false); // Initial state should be derived from props if possible, currently simplistic
-    const [likesCount, setLikesCount] = useState(post.likes.length);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
+
+    // Backend (NestJS) returns 'author' object, while Mock returned flattened 'username'/'userAvatar'
+    const postAuthor = (post as any).author;
+    const authorName = post.username || postAuthor?.username || "Unknown";
+    const authorAvatar = post.userAvatar || postAuthor?.avatarUrl || "/winter.jpg";
 
     useEffect(() => {
-        if (user && post.likes.includes(user.id)) {
+        if (user && post.likes?.includes(user.id)) {
             setIsLiked(true);
         }
     }, [user, post.likes]);
@@ -32,9 +37,13 @@ export function PostCard({ post, priority = false }: PostCardProps) {
         setLikesCount(prev => prevLiked ? prev - 1 : prev + 1);
 
         try {
+            const token = localStorage.getItem('sns_token');
             const res = await fetch(`http://localhost:3001/posts/${(post as any)._id || post.id}/like`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: JSON.stringify({ userId: user.id })
             });
             if (!res.ok) {
@@ -50,12 +59,15 @@ export function PostCard({ post, priority = false }: PostCardProps) {
         }
     };
 
-    const [imgSrc, setImgSrc] = useState(post.imageUrls[0]);
+    // Handle both old (imageUrls) and new (images) field names
+    const imageUrl = (post as any).images?.[0] || post.imageUrls?.[0] || "/winter.jpg";
+    const [imgSrc, setImgSrc] = useState(imageUrl);
 
-    // Update src when prop changes, critical for feed refresh
+    // Update src when prop changes
     useEffect(() => {
-        setImgSrc(post.imageUrls[0]);
-    }, [post.imageUrls]);
+        const newImageUrl = (post as any).images?.[0] || post.imageUrls?.[0] || "/winter.jpg";
+        setImgSrc(newImageUrl);
+    }, [post]);
 
     return (
         <article className="border-b border-gray-200 pb-4 mb-4 last:border-0">
@@ -64,17 +76,16 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                 <div className="flex items-center gap-3">
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-200">
                         <Image
-                            src={post.userAvatar || "/winter.jpg"}
-                            alt={post.username}
+                            src={authorAvatar}
+                            alt={authorName} // Fixed missing alt
                             fill
                             className="object-cover"
                             onError={(e) => {
-                                // Fallback for avatar
                                 e.currentTarget.srcset = "/winter.jpg";
                             }}
                         />
                     </div>
-                    <span className="font-semibold text-sm">{post.username}</span>
+                    <span className="font-semibold text-sm">{authorName}</span>
                     <span className="text-gray-500 text-xs">• {formatTimeAgo(post.createdAt)}</span>
                 </div>
                 <button>
@@ -121,16 +132,16 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                 좋아요 {likesCount}개
             </div>
 
-            {/* Caption */}
+            {/* Caption/Content */}
             <div className="text-sm">
-                <span className="font-semibold mr-2">{post.username}</span>
-                <span className="whitespace-pre-wrap">{post.caption}</span>
+                <span className="font-semibold mr-2">{authorName}</span>
+                <span className="whitespace-pre-wrap">{(post as any).content || post.caption}</span>
             </div>
 
             {/* Comments Count */}
-            {post.comments.length > 0 && (
+            {(post.comments?.length || 0) > 0 && (
                 <Link href={`/p/${(post as any)._id || post.id}`} className="text-gray-500 text-sm mt-1 block">
-                    댓글 {post.comments.length}개 모두 보기
+                    댓글 {post.comments?.length || 0}개 모두 보기
                 </Link>
             )}
 

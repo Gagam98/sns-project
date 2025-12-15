@@ -22,44 +22,49 @@ let PostsService = class PostsService {
     constructor(postModel) {
         this.postModel = postModel;
     }
-    async create(createPostDto) {
-        const createdPost = new this.postModel(createPostDto);
+    async create(createPostDto, files, authorId) {
+        const images = files ? files.map(file => file.location) : [];
+        const createdPost = new this.postModel({
+            ...createPostDto,
+            author: authorId,
+            images,
+        });
         return createdPost.save();
     }
     async findAll() {
-        return this.postModel.find().sort({ createdAt: -1 }).exec();
+        return this.postModel.find()
+            .sort({ createdAt: -1 })
+            .populate('author', 'username email avatarUrl')
+            .exec();
     }
-    async findByUser(username) {
-        return this.postModel.find({ username }).sort({ createdAt: -1 }).exec();
+    async findById(id) {
+        return this.postModel.findById(id).populate('author', 'username email avatarUrl').exec();
     }
-    async findOne(id) {
-        return this.postModel.findById(id).exec();
+    async findByAuthorUsername(username) {
+        return this.postModel.find()
+            .populate('author', 'username email avatarUrl')
+            .then(posts => posts.filter((post) => post.author?.username === username));
     }
-    async update(id, updatePostDto) {
-        return this.postModel.findByIdAndUpdate(id, updatePostDto, { new: true }).exec();
-    }
-    async remove(id) {
-        return this.postModel.findByIdAndDelete(id).exec();
-    }
-    async like(id, userId) {
-        const post = await this.postModel.findById(id);
+    async toggleLike(postId, userId) {
+        const post = await this.postModel.findById(postId);
         if (!post)
             return null;
-        const isLiked = post.likes.includes(userId);
-        const update = isLiked
-            ? { $pull: { likes: userId } }
-            : { $addToSet: { likes: userId } };
-        return this.postModel.findByIdAndUpdate(id, update, { new: true }).exec();
+        const isLiked = post.likes.some((id) => id.toString() === userId.toString());
+        if (isLiked) {
+            return this.postModel.findByIdAndUpdate(postId, { $pull: { likes: userId } }, { new: true });
+        }
+        else {
+            return this.postModel.findByIdAndUpdate(postId, { $addToSet: { likes: userId } }, { new: true });
+        }
     }
-    async comment(id, commentData) {
-        return this.postModel.findByIdAndUpdate(id, {
-            $push: {
-                comments: {
-                    ...commentData,
-                    createdAt: new Date(),
-                },
-            },
-        }, { new: true }).exec();
+    async addComment(postId, text, userId, username) {
+        const comment = {
+            text,
+            userId,
+            username,
+            createdAt: new Date(),
+        };
+        return this.postModel.findByIdAndUpdate(postId, { $push: { comments: comment } }, { new: true }).populate('author', 'username email avatarUrl').exec();
     }
 };
 exports.PostsService = PostsService;

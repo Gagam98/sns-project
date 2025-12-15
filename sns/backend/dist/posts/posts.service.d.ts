@@ -1,20 +1,12 @@
 import { Model } from 'mongoose';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { Post } from './schemas/post.schema';
+import { Post, PostDocument } from './schemas/post.schema';
 export declare class PostsService {
     private postModel;
-    constructor(postModel: Model<Post>);
-    create(createPostDto: CreatePostDto): Promise<Post>;
+    constructor(postModel: Model<PostDocument>);
+    create(createPostDto: any, files: Array<Express.Multer.File>, authorId: string): Promise<Post>;
     findAll(): Promise<Post[]>;
-    findByUser(username: string): Promise<Post[]>;
-    findOne(id: string): Promise<Post | null>;
-    update(id: string, updatePostDto: UpdatePostDto): Promise<Post | null>;
-    remove(id: string): Promise<Post | null>;
-    like(id: string, userId: string): Promise<Post | null>;
-    comment(id: string, commentData: {
-        text: string;
-        userId: string;
-        username: string;
-    }): Promise<Post | null>;
+    findById(id: string): Promise<Post | null>;
+    findByAuthorUsername(username: string): Promise<Post[]>;
+    toggleLike(postId: string, userId: string): Promise<Post | null>;
+    addComment(postId: string, text: string, userId: string, username: string): Promise<Post | null>;
 }

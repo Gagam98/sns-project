@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
-    async create(createUserDto: any): Promise<User> {
-        const createdUser = new this.userModel(createUserDto);
+    async create(createData: any): Promise<User> {
+        const createdUser = new this.userModel(createData);
         return createdUser.save();
     }
 
-    async findOne(username: string): Promise<User | null> {
-        return this.userModel.findOne({ username }).exec();
+    async findByEmail(email: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({ email }).exec();
     }
 
-    async findById(id: string): Promise<User | null> {
+    async findById(id: string): Promise<UserDocument | null> {
         return this.userModel.findById(id).exec();
     }
 
-    async update(username: string, updateUserDto: any): Promise<User | null> {
-        return this.userModel.findOneAndUpdate({ username }, updateUserDto, { new: true }).exec();
+    async findByUsername(username: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({ username }).exec();
     }
 }

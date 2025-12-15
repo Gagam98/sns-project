@@ -1,33 +1,43 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { User } from '../../users/schemas/user.schema';
 
-export type PostDocument = HydratedDocument<Post>;
+export type PostDocument = Post & Document;
 
-@Schema()
-export class Post {
+// Embedded Comment Schema
+export class Comment {
+    @Prop({ type: Types.ObjectId, default: () => new Types.ObjectId() })
+    _id: Types.ObjectId;
+
     @Prop({ required: true })
-    userId: string;
+    text: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    userId: Types.ObjectId;
 
     @Prop({ required: true })
     username: string;
 
-    @Prop()
-    userAvatar?: string;
-
-    @Prop({ type: [String], default: [] })
-    imageUrls: string[];
-
-    @Prop()
-    caption?: string;
-
-    @Prop({ type: [String], default: [] })
-    likes: string[];
-
-    @Prop({ type: [{ userId: String, username: String, text: String, createdAt: String }], default: [] })
-    comments: Record<string, any>[];
-
     @Prop({ default: Date.now })
     createdAt: Date;
+}
+
+@Schema({ timestamps: true })
+export class Post { // Renamed from Board
+    @Prop({ required: true })
+    content: string;
+
+    @Prop({ type: [String], default: [] })
+    images: string[];
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+    likes: User[];
+
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    author: User;
+
+    @Prop({ type: [Comment], default: [] })
+    comments: Comment[];
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

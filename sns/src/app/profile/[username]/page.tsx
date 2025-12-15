@@ -149,17 +149,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 {posts.map((post: any) => (
                     <Link key={post._id || post.id} href={`/p/${post._id || post.id}`} className="relative aspect-square cursor-pointer group bg-gray-100 block">
                         <Image
-                            src={post.imageUrls[0]}
+                            src={post.images?.[0] || post.imageUrls?.[0] || "/winter.jpg"}
                             alt="User post"
                             fill
                             className="object-cover"
                         />
                         <div className="absolute inset-0 bg-black/30 hidden group-hover:flex items-center justify-center text-white gap-6 font-bold z-10 transition-opacity">
                             <div className="flex items-center gap-1.5">
-                                <Heart className="w-5 h-5 fill-white" /> {post.likes.length}
+                                <Heart className="w-5 h-5 fill-white" /> {post.likes?.length || 0}
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <MessageCircle className="w-5 h-5 fill-white" /> {post.comments.length}
+                                <MessageCircle className="w-5 h-5 fill-white" /> {post.comments?.length || 0}
                             </div>
                         </div>
                     </Link>

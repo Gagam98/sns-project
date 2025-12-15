@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
+        protocol: 'https',
+        hostname: 'sns-project-image.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/posts/**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '3001',

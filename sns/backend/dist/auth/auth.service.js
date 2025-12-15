@@ -45,43 +45,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
+const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersService;
-    constructor(usersService) {
+    jwtService;
+    constructor(usersService, jwtService) {
         this.usersService = usersService;
+        this.jwtService = jwtService;
     }
-    async validateUser(username, pass) {
-        if (!pass)
-            return null;
-        const user = await this.usersService.findOne(username);
-        if (user && user.password && (await bcrypt.compare(pass, user.password))) {
-            const { password, ...result } = user;
+    async validateUser(email, pass) {
+        const user = await this.usersService.findByEmail(email);
+        if (user && (await bcrypt.compare(pass, user.password))) {
+            const { password, ...result } = user.toObject();
             return result;
         }
         return null;
     }
     async login(user) {
-        return user;
+        const payload = { email: user.email, sub: user._id };
+        return {
+            access_token: this.jwtService.sign(payload),
+        };
     }
-    async signup(createUserDto) {
-        const existingUser = await this.usersService.findOne(createUserDto.username);
-        if (existingUser) {
-            throw new common_1.UnauthorizedException('Username already taken');
-        }
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-        const userToCreate = { ...createUserDto, password: hashedPassword };
-        if (!userToCreate.avatarUrl) {
-            userToCreate.avatarUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${userToCreate.username}`;
-        }
-        const newUser = await this.usersService.create(userToCreate);
-        const { password, ...result } = newUser._doc || newUser;
-        return result;
+    async signup(userDto) {
+        const hashedPassword = await bcrypt.hash(userDto.password, 10);
+        return this.usersService.create({
+            ...userDto,
+            password: hashedPassword,
+        });
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [users_service_1.UsersService])
+    __metadata("design:paramtypes", [users_service_1.UsersService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map
