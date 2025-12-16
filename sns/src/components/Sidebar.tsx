@@ -27,7 +27,7 @@ export function Sidebar() {
 
     return (
         <>
-            <div className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-gray-300 bg-white p-4 z-40">
+            <div className="hidden md:flex flex-col w-64 h-screen sticky top-0 flex-shrink-0 border-r border-gray-300 bg-white p-4 z-40">
                 <Link href="/" className="mb-8 px-4 py-6">
                     <h1 className="text-2xl font-bold font-serif italic">Instagram</h1>
                 </Link>

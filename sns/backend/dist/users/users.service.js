@@ -35,6 +35,17 @@ let UsersService = class UsersService {
     async findByUsername(username) {
         return this.userModel.findOne({ username }).exec();
     }
+    async searchByUsername(query) {
+        if (!query || query.length < 1) {
+            return [];
+        }
+        return this.userModel.find({
+            username: { $regex: query, $options: 'i' }
+        })
+            .select('_id username email avatarUrl')
+            .limit(20)
+            .exec();
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

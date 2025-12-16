@@ -13,6 +13,7 @@ const config_1 = require("@nestjs/config");
 const posts_module_1 = require("./posts/posts.module");
 const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,6 +25,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             posts_module_1.PostsModule,
             auth_module_1.AuthModule,
+            chat_module_1.ChatModule,
         ],
         controllers: [],
         providers: [],

@@ -20,6 +20,9 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
+    async searchUsers(query) {
+        return this.usersService.searchByUsername(query);
+    }
     async findById(id) {
         return this.usersService.findById(id);
     }
@@ -28,6 +31,13 @@ let UsersController = class UsersController {
     }
 };
 exports.UsersController = UsersController;
+__decorate([
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "searchUsers", null);
 __decorate([
     (0, common_1.Get)('id/:id'),
     __param(0, (0, common_1.Param)('id')),
