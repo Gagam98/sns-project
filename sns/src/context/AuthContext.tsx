@@ -24,15 +24,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 try {
                     const res = await fetch(`http://localhost:3001/users/id/${userId}`);
                     if (res.ok) {
-                        const savedUser = await res.json();
-                        // ensure id mapping
-                        if (savedUser._id && !savedUser.id) savedUser.id = savedUser._id;
-                        setUser(savedUser);
+                        const text = await res.text();
+                        if (!text) {
+                            // Empty response - user not found, clear session
+                            localStorage.removeItem("sns_current_user_id");
+                            localStorage.removeItem("sns_token");
+                        } else {
+                            const savedUser = JSON.parse(text);
+                            if (savedUser) {
+                                // ensure id mapping
+                                if (savedUser._id && !savedUser.id) savedUser.id = savedUser._id;
+                                setUser(savedUser);
+                            } else {
+                                localStorage.removeItem("sns_current_user_id");
+                                localStorage.removeItem("sns_token");
+                            }
+                        }
                     } else {
                         localStorage.removeItem("sns_current_user_id");
+                        localStorage.removeItem("sns_token");
                     }
                 } catch (error) {
                     console.error("Auth init failed", error);
+                    localStorage.removeItem("sns_current_user_id");
+                    localStorage.removeItem("sns_token");
                 }
             }
             setIsLoading(false);

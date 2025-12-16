@@ -101,10 +101,10 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                     fill
                     className="object-cover"
                     priority={priority}
+                    loading={priority ? "eager" : "lazy"}
                     sizes="(max-width: 768px) 100vw, 468px"
                     onError={() => {
-                        // Fallback to a placeholder or hide if broken
-                        setImgSrc("/winter.jpg"); // Ideally use a generic placeholder
+                        setImgSrc("/winter.jpg");
                     }}
                 />
             </div>

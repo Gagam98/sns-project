@@ -119,8 +119,8 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     {/* Row 2: Stats (Desktop order) */}
                     <div className="flex gap-10 text-base mb-2 md:mb-0 order-3 md:order-2 justify-around md:justify-start border-t border-gray-100 md:border-0 py-4 md:py-0 w-full md:w-auto">
                         <span>게시물 <span className="font-semibold">{posts.length}</span></span>
-                        <span>팔로워 <span className="font-semibold">{profileUser.followers.length}</span></span>
-                        <span>팔로우 <span className="font-semibold">{profileUser.following.length}</span></span>
+                        <span>팔로워 <span className="font-semibold">{profileUser.followers?.length || 0}</span></span>
+                        <span>팔로우 <span className="font-semibold">{profileUser.following?.length || 0}</span></span>
                     </div>
 
                     {/* Row 3: Bio (Desktop order) */}

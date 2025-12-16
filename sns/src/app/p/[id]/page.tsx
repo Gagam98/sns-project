@@ -13,8 +13,52 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     const [post, setPost] = useState<Post | null>(null);
     const [loading, setLoading] = useState(true);
     const [commentText, setCommentText] = useState("");
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
     const { user } = useAuth();
     const router = useRouter();
+
+    // Check if user has liked the post
+    useEffect(() => {
+        if (user && post?.likes) {
+            const userLiked = post.likes.some((likeId: any) =>
+                likeId.toString() === user.id || likeId === user.id
+            );
+            setIsLiked(userLiked);
+            setLikesCount(post.likes.length);
+        }
+    }, [user, post]);
+
+    const handleLike = async () => {
+        if (!user) return alert("로그인이 필요합니다");
+        if (!post) return;
+
+        // Optimistic update
+        const prevLiked = isLiked;
+        setIsLiked(!prevLiked);
+        setLikesCount(prev => prevLiked ? prev - 1 : prev + 1);
+
+        try {
+            const token = localStorage.getItem('sns_token');
+            const res = await fetch(`http://localhost:3001/posts/${id}/like`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ userId: user.id })
+            });
+            if (!res.ok) {
+                // Revert if failed
+                setIsLiked(prevLiked);
+                setLikesCount(prev => prevLiked ? prev + 1 : prev - 1);
+            }
+        } catch (error) {
+            console.error("Like failed", error);
+            setIsLiked(prevLiked);
+            setLikesCount(prev => prevLiked ? prev + 1 : prev - 1);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,13 +191,15 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="border-t border-gray-200 p-4">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-4">
-                                <Heart className="w-6 h-6 stroke-2 hover:opacity-50 cursor-pointer" />
+                                <button onClick={handleLike} className="hover:opacity-70 transition-opacity">
+                                    <Heart className={`w-6 h-6 stroke-2 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                                </button>
                                 <MessageCircle className="w-6 h-6 stroke-2 hover:opacity-50 cursor-pointer -rotate-90" />
                                 <Send className="w-6 h-6 stroke-2 hover:opacity-50 cursor-pointer" />
                             </div>
                             <Bookmark className="w-6 h-6 stroke-2 hover:opacity-50 cursor-pointer" />
                         </div>
-                        <div className="font-semibold text-sm mb-1">좋아요 {post.likes.length}개</div>
+                        <div className="font-semibold text-sm mb-1">좋아요 {likesCount}개</div>
                         <div className="text-xs text-gray-500 uppercase">{new Date(post.createdAt).toDateString()}</div>
                     </div>
 
