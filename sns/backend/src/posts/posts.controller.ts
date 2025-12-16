@@ -1,5 +1,5 @@
-import { Controller, Get, Post as HttpPost, Patch, Body, Param, Req, UseGuards, UseInterceptors, UploadedFiles } from '@nestjs/common'; // Updated imports
-import { FilesInterceptor } from '@nestjs/platform-express'; // Added import
+import { Controller, Get, Post as HttpPost, Patch, Delete, Body, Param, Req, UseGuards, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { PostsService } from './posts.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -9,7 +9,7 @@ export class PostsController {
 
     @UseGuards(AuthGuard('jwt'))
     @HttpPost()
-    @UseInterceptors(FilesInterceptor('images', 10)) // Allow up to 10 images
+    @UseInterceptors(FilesInterceptor('images', 10))
     create(@Body() createPostDto: any, @UploadedFiles() files: Array<Express.Multer.File>, @Req() req: any) {
         return this.postsService.create(createPostDto, files, req.user.userId);
     }
@@ -30,6 +30,12 @@ export class PostsController {
     }
 
     @UseGuards(AuthGuard('jwt'))
+    @Delete(':id')
+    delete(@Param('id') id: string, @Req() req: any) {
+        return this.postsService.delete(id, req.user.userId);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
     @Patch(':id/like')
     toggleLike(@Param('id') id: string, @Req() req: any) {
         return this.postsService.toggleLike(id, req.user.userId);
@@ -40,3 +46,4 @@ export class PostsController {
         return this.postsService.addComment(id, body.text, body.userId, body.username);
     }
 }
+

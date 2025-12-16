@@ -34,6 +34,9 @@ let PostsController = class PostsController {
     findOne(id) {
         return this.postsService.findById(id);
     }
+    delete(id, req) {
+        return this.postsService.delete(id, req.user.userId);
+    }
     toggleLike(id, req) {
         return this.postsService.toggleLike(id, req.user.userId);
     }
@@ -73,6 +76,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PostsController.prototype, "delete", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Patch)(':id/like'),

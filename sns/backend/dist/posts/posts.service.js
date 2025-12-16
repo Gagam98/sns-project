@@ -66,6 +66,17 @@ let PostsService = class PostsService {
         };
         return this.postModel.findByIdAndUpdate(postId, { $push: { comments: comment } }, { new: true }).populate('author', 'username email avatarUrl').exec();
     }
+    async delete(postId, userId) {
+        const post = await this.postModel.findById(postId);
+        if (!post) {
+            return { deleted: false, message: 'Post not found' };
+        }
+        if (post.author.toString() !== userId) {
+            return { deleted: false, message: 'Unauthorized: You can only delete your own posts' };
+        }
+        await this.postModel.findByIdAndDelete(postId);
+        return { deleted: true, message: 'Post deleted successfully' };
+    }
 };
 exports.PostsService = PostsService;
 exports.PostsService = PostsService = __decorate([

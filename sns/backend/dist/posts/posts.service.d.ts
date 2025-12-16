@@ -9,4 +9,8 @@ export declare class PostsService {
     findByAuthorUsername(username: string): Promise<Post[]>;
     toggleLike(postId: string, userId: string): Promise<Post | null>;
     addComment(postId: string, text: string, userId: string, username: string): Promise<Post | null>;
+    delete(postId: string, userId: string): Promise<{
+        deleted: boolean;
+        message: string;
+    }>;
 }

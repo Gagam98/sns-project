@@ -6,6 +6,10 @@ export declare class PostsController {
     findAll(): Promise<import("./schemas/post.schema").Post[]>;
     findByUser(username: string): Promise<import("./schemas/post.schema").Post[]>;
     findOne(id: string): Promise<import("./schemas/post.schema").Post | null>;
+    delete(id: string, req: any): Promise<{
+        deleted: boolean;
+        message: string;
+    }>;
     toggleLike(id: string, req: any): Promise<import("./schemas/post.schema").Post | null>;
     addComment(id: string, body: {
         text: string;

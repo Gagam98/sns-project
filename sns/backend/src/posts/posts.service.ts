@@ -71,4 +71,19 @@ export class PostsService {
             { new: true }
         ).populate('author', 'username email avatarUrl').exec();
     }
+
+    async delete(postId: string, userId: string): Promise<{ deleted: boolean; message: string }> {
+        const post = await this.postModel.findById(postId);
+        if (!post) {
+            return { deleted: false, message: 'Post not found' };
+        }
+
+        // Check if user is the author
+        if (post.author.toString() !== userId) {
+            return { deleted: false, message: 'Unauthorized: You can only delete your own posts' };
+        }
+
+        await this.postModel.findByIdAndDelete(postId);
+        return { deleted: true, message: 'Post deleted successfully' };
+    }
 }
