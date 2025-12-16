@@ -56,7 +56,7 @@ let AuthService = class AuthService {
     }
     async validateUser(email, pass) {
         const user = await this.usersService.findByEmail(email);
-        if (user && (await bcrypt.compare(pass, user.password))) {
+        if (user && user.password && (await bcrypt.compare(pass, user.password))) {
             const { password, ...result } = user.toObject();
             return result;
         }
@@ -74,6 +74,24 @@ let AuthService = class AuthService {
             ...userDto,
             password: hashedPassword,
         });
+    }
+    async validateGoogleUser(profile) {
+        const { emails, photos, displayName, id: googleId } = profile;
+        const email = emails[0].value;
+        const avatarUrl = photos?.[0]?.value;
+        let user = await this.usersService.findByEmail(email);
+        if (!user) {
+            user = await this.usersService.create({
+                email,
+                username: displayName || email.split('@')[0],
+                avatarUrl,
+                googleId,
+            });
+        }
+        const userDoc = user;
+        const result = userDoc.toObject ? userDoc.toObject() : userDoc;
+        delete result.password;
+        return result;
     }
 };
 exports.AuthService = AuthService;

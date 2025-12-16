@@ -5,6 +5,8 @@ export declare class AuthController {
     login(req: any): Promise<{
         access_token: string;
     }>;
-    signup(req: any): Promise<import("../users/schemas/user.schema").User>;
+    signup(req: any): Promise<import("../users/schemas/user.schema").UserDocument>;
     getProfile(req: any): any;
+    googleAuth(req: any): Promise<void>;
+    googleAuthRedirect(req: any, res: any): Promise<void>;
 }

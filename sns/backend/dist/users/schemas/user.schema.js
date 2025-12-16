@@ -16,6 +16,7 @@ let User = class User {
     password;
     username;
     avatarUrl;
+    googleId;
 };
 exports.User = User;
 __decorate([
@@ -23,7 +24,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
@@ -34,6 +35,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], User.prototype, "avatarUrl", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], User.prototype, "googleId", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)()
 ], User);

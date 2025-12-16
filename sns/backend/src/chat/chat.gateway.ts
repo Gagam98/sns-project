@@ -92,6 +92,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             );
 
             // Emit to all users in the conversation room
+            //모든 사용자에게 메시지를 전송
             this.server.to(data.conversationId).emit('newMessage', message);
 
             // Also emit to the receiver directly if they're online but not in the room
@@ -124,6 +125,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         @ConnectedSocket() client: Socket,
     ) {
         // Broadcast typing status to others in the conversation
+        //나의 타이핑 상태를 나 자신을 제외하고 다른 사람들에게 전달
         client.to(data.conversationId).emit('userTyping', {
             userId: data.userId,
             isTyping: data.isTyping,

@@ -8,14 +8,17 @@ export class User {
     @Prop({ required: true, unique: true })
     email: string;
 
-    @Prop({ required: true })
-    password: string; // Encrypted
+    @Prop({ required: false })
+    password?: string; // Encrypted, optional for social login users
 
     @Prop()
     username: string;
 
     @Prop()
     avatarUrl: string;
+
+    @Prop()
+    googleId?: string; // Google OAuth user ID
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

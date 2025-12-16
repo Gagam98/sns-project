@@ -8,5 +8,6 @@ export declare class AuthService {
     login(user: any): Promise<{
         access_token: string;
     }>;
-    signup(userDto: any): Promise<import("../users/schemas/user.schema").User>;
+    signup(userDto: any): Promise<import("../users/schemas/user.schema").UserDocument>;
+    validateGoogleUser(profile: any): Promise<any>;
 }
