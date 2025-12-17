@@ -31,8 +31,8 @@ export function Feed() {
     const [realPosts, setRealPosts] = useState<Post[]>([]);
     const [fakePosts, setFakePosts] = useState<Post[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [hasMoreReal, setHasMoreReal] = useState(true);
     const fakePostIndex = useRef(0);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     // Fetch real posts from backend
     const fetchRealPosts = useCallback(async () => {
@@ -41,17 +41,11 @@ export function Feed() {
             if (res.ok) {
                 const data = await res.json();
                 setRealPosts(data);
-                if (data.length === 0) setHasMoreReal(false);
             }
         } catch (error) {
             console.error("Failed to fetch feed", error);
         }
     }, []);
-
-    // Initial load
-    useEffect(() => {
-        fetchRealPosts();
-    }, [fetchRealPosts]);
 
     // Load more fake posts
     const loadMoreFakePosts = useCallback(() => {
@@ -67,20 +61,44 @@ export function Feed() {
             }
             setFakePosts(prev => [...prev, ...newFakePosts]);
             setIsLoading(false);
-        }, 500);
+        }, 300);
     }, [isLoading]);
 
-    // Infinite scroll handler
+    // Initial load - fetch real posts and generate initial fake posts
     useEffect(() => {
-        const handleScroll = () => {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) {
-                loadMoreFakePosts();
+        fetchRealPosts();
+
+        // Generate initial fake posts
+        const initialFakePosts: Post[] = [];
+        for (let i = 0; i < 10; i++) {
+            initialFakePosts.push(generateFakePost(fakePostIndex.current));
+            fakePostIndex.current++;
+        }
+        setFakePosts(initialFakePosts);
+    }, [fetchRealPosts]);
+
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isLoading) {
+                    loadMoreFakePosts();
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
             }
         };
-
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [loadMoreFakePosts]);
+    }, [loadMoreFakePosts, isLoading]);
 
     const allPosts = [...realPosts, ...fakePosts];
 
@@ -89,6 +107,9 @@ export function Feed() {
             {allPosts.map((post: any, index) => (
                 <PostCard key={post._id || post.id} post={post} priority={index < 2} />
             ))}
+
+            {/* Intersection Observer Target */}
+            <div ref={observerTarget} className="h-10" />
 
             {isLoading && (
                 <div className="text-center py-4">

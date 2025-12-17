@@ -103,11 +103,14 @@ export function PostCard({ post, priority = false }: PostCardProps) {
 
             {/* Image */}
             <div className="relative aspect-square w-full rounded-sm overflow-hidden border border-gray-100 bg-gray-100">
+                {!priority && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+                )}
                 <Image
                     src={imgSrc}
                     alt="Post content"
                     fill
-                    className="object-cover"
+                    className="object-cover transition-opacity duration-300"
                     priority={priority}
                     loading={priority ? "eager" : "lazy"}
                     sizes="(max-width: 768px) 100vw, 468px"
