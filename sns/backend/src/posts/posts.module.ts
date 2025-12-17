@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
 import { S3Client } from '@aws-sdk/client-s3';
 import * as multerS3 from 'multer-s3';
 import { memoryStorage } from 'multer'; // Add import
@@ -11,6 +12,7 @@ import { Post, PostSchema } from './schemas/post.schema';
 
 @Module({
     imports: [
+        PassportModule,
         MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
         MulterModule.registerAsync({
             imports: [ConfigModule],

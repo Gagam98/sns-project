@@ -44,6 +44,7 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const platform_express_1 = require("@nestjs/platform-express");
 const config_1 = require("@nestjs/config");
+const passport_1 = require("@nestjs/passport");
 const client_s3_1 = require("@aws-sdk/client-s3");
 const multerS3 = __importStar(require("multer-s3"));
 const multer_1 = require("multer");
@@ -56,6 +57,7 @@ exports.PostsModule = PostsModule;
 exports.PostsModule = PostsModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            passport_1.PassportModule,
             mongoose_1.MongooseModule.forFeature([{ name: post_schema_1.Post.name, schema: post_schema_1.PostSchema }]),
             platform_express_1.MulterModule.registerAsync({
                 imports: [config_1.ConfigModule],
