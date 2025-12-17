@@ -39,7 +39,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         setLikesCount(prev => prevLiked ? prev - 1 : prev + 1);
 
         try {
-            const token = localStorage.getItem('sns_token');
+            let token = null;
+            if (typeof window !== "undefined") {
+                try {
+                    token = localStorage.getItem('sns_token');
+                } catch (storageError) {
+                    console.error("Failed to access localStorage:", storageError);
+                }
+            }
             const res = await fetch(`http://localhost:3001/posts/${id}/like`, {
                 method: 'PATCH',
                 headers: {

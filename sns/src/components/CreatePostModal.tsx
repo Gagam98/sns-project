@@ -44,7 +44,14 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             }
 
             // Get JWT token from localStorage (assuming it's stored during login)
-            const token = localStorage.getItem('sns_token');
+            let token = null;
+            if (typeof window !== "undefined") {
+                try {
+                    token = localStorage.getItem('sns_token');
+                } catch (error) {
+                    console.error("Failed to access localStorage:", error);
+                }
+            }
 
             const res = await fetch('http://localhost:3001/posts', {
                 method: 'POST',

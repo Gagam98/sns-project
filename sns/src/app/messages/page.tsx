@@ -41,7 +41,14 @@ export default function MessagesPage() {
 
         const fetchConversations = async () => {
             try {
-                const token = localStorage.getItem("sns_token");
+                let token = null;
+                if (typeof window !== "undefined") {
+                    try {
+                        token = localStorage.getItem("sns_token");
+                    } catch (storageError) {
+                        console.error("Failed to access localStorage:", storageError);
+                    }
+                }
                 const res = await fetch(`${API_URL}/chat/conversations`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -65,7 +72,14 @@ export default function MessagesPage() {
 
         const fetchMessages = async () => {
             try {
-                const token = localStorage.getItem("sns_token");
+                let token = null;
+                if (typeof window !== "undefined") {
+                    try {
+                        token = localStorage.getItem("sns_token");
+                    } catch (storageError) {
+                        console.error("Failed to access localStorage:", storageError);
+                    }
+                }
                 const res = await fetch(
                     `${API_URL}/chat/conversations/${selectedConversation._id}/messages`,
                     {
@@ -102,7 +116,14 @@ export default function MessagesPage() {
         if (!user) return;
 
         try {
-            const token = localStorage.getItem("sns_token");
+            let token = null;
+            if (typeof window !== "undefined") {
+                try {
+                    token = localStorage.getItem("sns_token");
+                } catch (storageError) {
+                    console.error("Failed to access localStorage:", storageError);
+                }
+            }
             const res = await fetch(`${API_URL}/chat/conversations`, {
                 method: "POST",
                 headers: {

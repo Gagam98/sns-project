@@ -19,36 +19,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const initAuth = async () => {
-            const userId = localStorage.getItem("sns_current_user_id");
-            if (userId && userId !== "undefined") {
-                try {
-                    const res = await fetch(`http://localhost:3001/users/id/${userId}`);
-                    if (res.ok) {
-                        const text = await res.text();
-                        if (!text) {
-                            // Empty response - user not found, clear session
-                            localStorage.removeItem("sns_current_user_id");
-                            localStorage.removeItem("sns_token");
-                        } else {
-                            const savedUser = JSON.parse(text);
-                            if (savedUser) {
-                                // ensure id mapping
-                                if (savedUser._id && !savedUser.id) savedUser.id = savedUser._id;
-                                setUser(savedUser);
-                            } else {
+            if (typeof window === "undefined") {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const userId = localStorage.getItem("sns_current_user_id");
+                if (userId && userId !== "undefined") {
+                    try {
+                        const res = await fetch(`http://localhost:3001/users/id/${userId}`);
+                        if (res.ok) {
+                            const text = await res.text();
+                            if (!text) {
+                                // Empty response - user not found, clear session
                                 localStorage.removeItem("sns_current_user_id");
                                 localStorage.removeItem("sns_token");
+                            } else {
+                                const savedUser = JSON.parse(text);
+                                if (savedUser) {
+                                    // ensure id mapping
+                                    if (savedUser._id && !savedUser.id) savedUser.id = savedUser._id;
+                                    setUser(savedUser);
+                                } else {
+                                    localStorage.removeItem("sns_current_user_id");
+                                    localStorage.removeItem("sns_token");
+                                }
                             }
+                        } else {
+                            localStorage.removeItem("sns_current_user_id");
+                            localStorage.removeItem("sns_token");
                         }
-                    } else {
+                    } catch (error) {
+                        console.error("Auth init failed", error);
                         localStorage.removeItem("sns_current_user_id");
                         localStorage.removeItem("sns_token");
                     }
-                } catch (error) {
-                    console.error("Auth init failed", error);
-                    localStorage.removeItem("sns_current_user_id");
-                    localStorage.removeItem("sns_token");
                 }
+            } catch (storageError) {
+                console.error("localStorage access failed:", storageError);
             }
             setIsLoading(false);
         };
@@ -70,8 +79,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = await res.json();
 
             // Backend returns { access_token: "..." }
-            if (data.access_token) {
-                localStorage.setItem("sns_token", data.access_token);
+            if (data.access_token && typeof window !== "undefined") {
+                try {
+                    localStorage.setItem("sns_token", data.access_token);
+                } catch (storageError) {
+                    console.error("Failed to save token:", storageError);
+                }
             }
 
             // Fetch user details with token
@@ -85,7 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const user = await userRes.json();
                 if (user._id && !user.id) user.id = user._id;
                 setUser(user);
-                localStorage.setItem("sns_current_user_id", user.id);
+                if (typeof window !== "undefined") {
+                    try {
+                        localStorage.setItem("sns_current_user_id", user.id);
+                    } catch (storageError) {
+                        console.error("Failed to save user ID:", storageError);
+                    }
+                }
             } else {
                 throw new Error('Failed to fetch user data');
             }
@@ -109,7 +128,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (user._id && !user.id) user.id = user._id;
 
             setUser(user);
-            localStorage.setItem("sns_current_user_id", user.id);
+            if (typeof window !== "undefined") {
+                try {
+                    localStorage.setItem("sns_current_user_id", user.id);
+                } catch (storageError) {
+                    console.error("Failed to save user ID:", storageError);
+                }
+            }
         } catch (error: any) {
             throw new Error(error.message || 'Signup failed');
         }
@@ -117,7 +142,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         // await store.logout(); // client side only for now in original logic
-        localStorage.removeItem("sns_current_user_id");
+        if (typeof window !== "undefined") {
+            try {
+                localStorage.removeItem("sns_current_user_id");
+                localStorage.removeItem("sns_token");
+            } catch (storageError) {
+                console.error("Failed to clear storage:", storageError);
+            }
+        }
         setUser(null);
     };
 
