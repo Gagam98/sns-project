@@ -31,17 +31,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'sns-project-image.s3.ap-northeast-2.amazonaws.com',
-        pathname: '/posts/**',
+        pathname: '/**',
       },
       {
         protocol: 'http',
-        hostname: 'localhost',
-        port: '3001',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'example.com',
+        hostname: '43.201.34.170',
+        port: '3000',
         pathname: '/**',
       },
       {
@@ -52,6 +47,7 @@ const nextConfig: NextConfig = {
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    unoptimized: false,
   },
 };
 
