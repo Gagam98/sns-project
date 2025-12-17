@@ -1,5 +1,6 @@
 
 export interface User {
+    _id?: string;      // MongoDB document ID
     id: string;
     username: string;
     avatarUrl?: string;
@@ -11,6 +12,7 @@ export interface User {
 }
 
 export interface Comment {
+    _id?: string;      // MongoDB document ID
     id: string;
     userId: string;
     username: string; // denormalized for easier display

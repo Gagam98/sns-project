@@ -12,7 +12,8 @@ import { ChatModule } from './chat/chat.module';
         // Connect to MongoDB. Using hardcoded URL for now as per previous context or env
         // Previous context used local, but we might want to use ENV.
         // Assuming .env exists in backend root.
-        MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/sns'),
+        // MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/sns'),
+        MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/sns'),
         UsersModule,
         PostsModule,
         AuthModule,

@@ -135,7 +135,7 @@ export default function MessagesPage() {
     const handleSendMessage = (content: string) => {
         if (!selectedConversation || !user) return;
 
-        const currentUserId = user.id || user._id;
+        const currentUserId = (user.id || user._id) as string;
         const otherUser = selectedConversation.participants.find(
             (p) => p._id !== currentUserId
         );
@@ -152,7 +152,7 @@ export default function MessagesPage() {
 
     const handleTyping = (isTyping: boolean) => {
         if (!selectedConversation || !user) return;
-        sendTyping(selectedConversation._id, user.id || user._id, isTyping);
+        sendTyping(selectedConversation._id, (user.id || user._id) as string, isTyping);
     };
 
     if (isLoading) {
@@ -176,7 +176,7 @@ export default function MessagesPage() {
         );
     }
 
-    const currentUserId = user.id || user._id;
+    const currentUserId = (user.id || user._id) as string;
 
     return (
         <div className="flex h-full bg-white">
